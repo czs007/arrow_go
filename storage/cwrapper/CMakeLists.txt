@@ -123,5 +123,10 @@ if(NOT CMAKE_INSTALL_PREFIX)
 endif()
 
 message( STATUS "INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}" )
+message( STATUS "CURRENT_PREFIX: ${CMAKE_CURRENT_BINARY_DIR}" )
+
+add_executable(writer_parquet my.cc)
+target_link_libraries(writer_parquet PRIVATE wrapper)
 
 install( TARGETS wrapper )
+install( TARGETS writer_parquet)

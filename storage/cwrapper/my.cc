@@ -39,47 +39,9 @@ void write_parquet_file(const arrow::Table &table) {
 
 }
 
-void read_whole_file() {
-
-    auto mempool2 = arrow::default_memory_pool();
-    std::cout << "address2:" << mempool2 << std::endl;
-
-    auto mempool = arrow::MemoryPool::CreateDefault();
-    std::cout << "address:" << mempool.get() << std::endl;
-    // auto mempool2 = mempool->CreateDefault();
-    std::cout << "Reading parquet-arrow-example2.parquet at once" << std::endl;
-    std::shared_ptr<arrow::io::ReadableFile> infile;
-    PARQUET_ASSIGN_OR_THROW(infile,
-                            arrow::io::ReadableFile::Open("parquet-arrow-example2.parquet",
-                                                          mempool.get()));
-
-    std::cout << "read::bytes-1::" << mempool->bytes_allocated() << std::endl;
-    std::unique_ptr<parquet::arrow::FileReader> reader;
-    PARQUET_THROW_NOT_OK(
-            //parquet::arrow::OpenFile(infile, arrow::default_memory_pool(), &reader));
-            parquet::arrow::OpenFile(infile, mempool.get(), &reader));
-    std::shared_ptr<arrow::Table> table;
-    PARQUET_THROW_NOT_OK(reader->ReadTable(&table));
-    std::cout << "Loaded " << table->num_rows() << " rows in " << table->num_columns()
-              << " columns." << std::endl;
-
-    std::cout << "read::bytes-2::" << mempool->bytes_allocated() << std::endl;
-    mempool->ReleaseUnused();
-//  mempool = mempool->CreateDefault();
-    std::cout << "read::bytes-after callReleaseUnused::" << mempool->bytes_allocated() << std::endl;
-
-}
-
 int main() {
-    //std::shared_ptr<arrow::Table> table = generate_table();
-    //write_parquet_file(*table);
-    //std::cout<<"write parquet_file done"<<std::endl;
-    for (int i = 0; i < 100; i++) {
-        std::cout << "start " << std::endl;
-        read_whole_file();
-        std::cout << "end " << std::endl;
-        sleep(2);
-    }
-    std::cout << "start sleep 100" << std::endl;
-    sleep(100);
+    std::shared_ptr<arrow::Table> table = generate_table();
+    write_parquet_file(*table);
+    std::cout<<"write parquet_file done"<<std::endl;
+    return 0;
 }

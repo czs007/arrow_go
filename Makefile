@@ -58,7 +58,8 @@ build-cpp:
 install: all
 	@echo "Installing binary to './bin'"
 	@mkdir -p $(GOPATH)/bin && cp -f $(PWD)/bin/my_example $(GOPATH)/bin/my_example
-#	@mkdir -p $(LIBRARY_PATH) && cp -P $(PWD)/internal/core/output/lib/* $(LIBRARY_PATH)
+	@cp -f $(PWD)/storage/cwrapper/output/bin/writer_parquet $(PWD)/bin/writer_parquet
+#	/home/czs/arrow_go/storage/cwrapper/output/bin/writer_parquet
 	@echo "Installation successful."
 
 clean:
