@@ -14,3 +14,5 @@ cd arrow_go/bin
 or 
 ./my_example --enableGC
 短时间内看到显著的内存增长
+
+pprof: localhost:6060/debug/pprof
