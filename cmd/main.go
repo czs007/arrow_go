@@ -5,10 +5,21 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"runtime"
 	"time"
+
+	_ "net/http/pprof"
 )
+
+func ServePProf() {
+	go func() {
+		if err := http.ListenAndServe("0.0.0.0:6060", nil); err != nil {
+			panic("Start web service for pprof failed")
+		}
+	}()
+}
 
 func execute(i int, enableGC bool) {
 	fmt.Println("round ", i)
@@ -42,6 +53,7 @@ func main() {
 		return
 	}
 
+	ServePProf()
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
 	var enableGC bool
@@ -49,7 +61,7 @@ func main() {
 	if err := flags.Parse(os.Args[1:]); err != nil {
 		os.Exit(-1)
 	}
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 1000; i++ {
 		execute(i, enableGC)
 	}
 	time.Sleep(10 * time.Second)
