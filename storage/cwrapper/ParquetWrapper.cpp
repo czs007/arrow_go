@@ -360,9 +360,11 @@ CPayloadReader NewPayloadReader(int columnType, uint8_t *buffer, int64_t buf_siz
   auto mem_pool = arrow::default_memory_pool();
   std::cout<<"NewPayloadReader::mem_pool" << mem_pool<< std::endl;
   std::cout<<"NewPayloadReader::mem_pool bytes" << mem_pool->bytes_allocated()<< std::endl;
+  mem_pool->ReleaseUnused();``
 
   auto st = parquet::arrow::OpenFile(p->input, mem_pool, &p->reader);
   if (!st.ok()) {
+    std::cout<<"Arrow OpenFile failed" <<std::endl;
     delete p;
     return nullptr;
   }
@@ -372,7 +374,7 @@ CPayloadReader NewPayloadReader(int columnType, uint8_t *buffer, int64_t buf_siz
     delete p;
     return nullptr;
   }
-//  mem_pool->ReleaseUnused();
+  mem_pool->ReleaseUnused();
   p->column = p->table->column(0);
   assert(p->column != nullptr);
   assert(p->column->chunks().size() == 1);
