@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"example.com/arrow_go/storage"
 	"flag"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"sync"
 	"time"
 
 	_ "net/http/pprof"
@@ -61,8 +63,23 @@ func main() {
 	if err := flags.Parse(os.Args[1:]); err != nil {
 		os.Exit(-1)
 	}
+	ctx, cancel := context.WithCancel(context.Background())
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func(ctx context.Context, group *sync.WaitGroup) {
+		defer group.Done()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+				break
+			}
+		}
+	}(ctx, &wg)
 	for i := 0; i < 1000; i++ {
 		execute(i, enableGC)
 	}
+	cancel()
 	time.Sleep(10 * time.Second)
+	wg.Wait()
 }
