@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -63,23 +64,32 @@ func main() {
 	if err := flags.Parse(os.Args[1:]); err != nil {
 		os.Exit(-1)
 	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	var wg sync.WaitGroup
-	wg.Add(1)
-	go func(ctx context.Context, group *sync.WaitGroup) {
-		defer group.Done()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-				break
+	if enableGC {
+		fmt.Println("Enable GC@!!!!!")
+		wg.Add(1)
+		go func(ctx context.Context, group *sync.WaitGroup) {
+			defer group.Done()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+
+				default:
+					//runtime.GC()
+					debug.FreeOSMemory()
+					time.Sleep(time.Millisecond * 100)
+				}
 			}
-		}
-	}(ctx, &wg)
+		}(ctx, &wg)
+	}
 	for i := 0; i < 1000; i++ {
-		execute(i, enableGC)
+		execute(i, false)
 	}
 	cancel()
+
 	time.Sleep(10 * time.Second)
 	wg.Wait()
 }
